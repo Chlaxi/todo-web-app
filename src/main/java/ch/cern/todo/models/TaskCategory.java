@@ -1,11 +1,16 @@
 package ch.cern.todo.models;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.data.annotation.Id;
 
-public class TaskCategory {
+import java.io.Serializable;
+
+@Entity
+@Table(name = "TASK_CATEGORIES")
+public class TaskCategory implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int categoryId;
     @NotEmpty
     private String categoryName;

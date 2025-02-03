@@ -2,64 +2,70 @@ package ch.cern.todo.services;
 
 import ch.cern.todo.models.Task;
 import ch.cern.todo.models.TaskCategory;
+import ch.cern.todo.repository.TaskCategoryRepository;
+import ch.cern.todo.repository.TaskRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.HashMap;
 
 @Service
 public class TodoService {
 
-    private HashMap<Integer, Task> tasks = new HashMap<>();
-    private HashMap<Integer, TaskCategory> categories = new HashMap<>();
+    private final TaskRepository taskRepository;
+    private final TaskCategoryRepository categoryRepository;
 
-    public Collection<Task> getTasks(){
-        return tasks.values();
+    public TodoService(TaskRepository taskRepository, TaskCategoryRepository categoryRepository) {
+        this.taskRepository = taskRepository;
+        this.categoryRepository = categoryRepository;
+    }
+
+    public Iterable<Task> getTasks(){
+        return taskRepository.findAll();
     }
 
     public Task getTask(int id) {
-        return tasks.get(id);
+        return taskRepository.findById(id).orElse(null);
     }
 
     public Task createTask(Task task){
-        tasks.put(task.getTaskId(), task);
+        taskRepository.save(task);
         return task;
     }
 
     public Task editTask(Task task){
-        if(!tasks.containsKey(task.getTaskId()))
+        if(taskRepository.findById(task.getTaskId()).isEmpty())
             return null;
-        tasks.put(task.getTaskId(), task);
+
+        taskRepository.save(task);
         return task;
     }
 
     public void deleteTask(int id){
-        tasks.remove(id);
+        taskRepository.deleteById(id);
     }
 
-    public Collection<TaskCategory> getTaskCategories(){
-        return categories.values();
+    public Iterable<TaskCategory> getTaskCategories(){
+        return categoryRepository.findAll();
     }
 
 
     public TaskCategory getCategory(int id){
-        return categories.get(id);
+        return categoryRepository.findById(id).orElse(null);
     }
 
     public TaskCategory createCategory(TaskCategory category){
-        categories.put(category.getCategoryId(), category);
+        categoryRepository.save(category);
         return category;
     }
 
     public TaskCategory editCategory(TaskCategory category){
-        if(!categories.containsKey(category.getCategoryId()))
+        if(!categoryRepository.existsById(category.getCategoryId()))
             return null;
-        categories.put(category.getCategoryId(), category);
+
+        categoryRepository.save(category);
         return category;
     }
 
     public void deleteCategory(int id) {
-        categories.remove(id);
+        categoryRepository.deleteById(id);
     }
 
 }

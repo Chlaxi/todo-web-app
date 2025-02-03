@@ -1,17 +1,23 @@
 package ch.cern.todo.models;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.data.annotation.Id;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Task {
+@Entity
+@Table(name = "TASKS")
+public class Task implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int taskId;
     @NotEmpty
     private String taskName;
     private String taskDescription;
     private Timestamp deadline;
+    private int categoryId;
+    @Transient
     private TaskCategory category;
 
     public int getTaskId() {
@@ -52,5 +58,13 @@ public class Task {
 
     public void setCategory(TaskCategory category) {
         this.category = category;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 }

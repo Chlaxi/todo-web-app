@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collection;
 
 @RestController
 public class TodoController {
@@ -25,12 +24,12 @@ public class TodoController {
     }
 
     @GetMapping("/tasks")
-    public Collection<Task> getTasks(){
+    public Iterable<Task> getTasks(){
         return service.getTasks();
     }
 
     @GetMapping("/categories")
-    public Collection<TaskCategory> getTaskCategories(){
+    public Iterable<TaskCategory> getTaskCategories(){
         return service.getTaskCategories();
     }
 
