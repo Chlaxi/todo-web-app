@@ -108,4 +108,26 @@ class TaskRepositoryTest {
                 result.getTaskDescription());
 
     }
+
+    @Test
+    public void TestTaskUpdateWrongCategoryDefault(){
+        var setupCat = taskRepository.save(new Task("Test"));
+        Assertions.assertEquals(1, taskRepository.count(),
+                "Failed creating task during setup");
+
+        var task = taskRepository.getById(setupCat.getTaskId());
+        task.setTaskName("Updated name");
+        task.setTaskDescription("Lorem ipsum");
+
+        var result = taskRepository.save(task);
+        Assertions.assertEquals(1, taskRepository.count(),
+                "A new entry was created instead of updating");
+        Assertions.assertEquals(task.getTaskId(),
+                result.getTaskId());
+        Assertions.assertEquals(task.getTaskName(),
+                result.getTaskName());
+        Assertions.assertEquals(task.getTaskDescription(),
+                result.getTaskDescription());
+
+    }
 }

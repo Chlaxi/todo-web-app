@@ -2,9 +2,11 @@ package ch.cern.todo.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 @Entity
 @Table(name = "TASKS")
@@ -15,21 +17,24 @@ public class Task implements Serializable {
     @NotEmpty
     private String taskName;
     private String taskDescription;
+    @NotNull
     private Timestamp deadline;
+    @NotNull
     private int categoryId;
-    @Transient
-    private TaskCategory category;
 
     public Task() {
         this.categoryId = 1;
+        deadline = new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND));
     }
     public Task(String taskName) {
         this.taskName = taskName;
+        deadline = new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND));
         this.categoryId = 1;
     }
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
+        deadline = new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND));
         this.categoryId = 1;
     }
 
@@ -63,14 +68,6 @@ public class Task implements Serializable {
 
     public void setDeadline(Timestamp deadline) {
         this.deadline = deadline;
-    }
-
-    public TaskCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(TaskCategory category) {
-        this.category = category;
     }
 
     public int getCategoryId() {
