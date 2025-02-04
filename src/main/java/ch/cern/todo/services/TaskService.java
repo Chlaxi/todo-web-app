@@ -30,18 +30,17 @@ public class TaskService {
         return TaskDTOFromTask(task);
     }
 
-    public Task createTask(Task task){
-        return save(task);
+    public TaskDTO createTask(Task task){
+        return TaskDTOFromTask(save(task));
     }
 
-    public Task editTask(int id, Task task){
-        if(!taskRepository.existsById(id))
+    public TaskDTO editTask(int id, Task newTask){
+        Task task = taskRepository.findById(id).orElse(null);
+        if(task == null)
             return null;
 
-        if(task.getTaskId() != id)
-            return null;
-
-        return save(task);
+        Task updatedTask = save(newTask);
+        return TaskDTOFromTask(updatedTask);
     }
 
     public boolean deleteTask(int id){

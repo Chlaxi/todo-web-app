@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +35,7 @@ class TaskServiceTest {
     void getTaskById() {
         Task task = new Task("Test");
 
-        when(taskRepository.findById(1)).thenReturn(Optional.ofNullable(task));
+        when(taskRepository.findById(1)).thenReturn(Optional.of(task));
         when(categoryRepository.findById(1)).thenReturn(Optional.of(new TaskCategory("Test")));
         var response = taskService.getTaskById(1);
 
@@ -47,6 +46,10 @@ class TaskServiceTest {
     void testCreateTask() {
         Task task = new Task("Test");
 
+        TaskCategory cat = new TaskCategory("test");
+        cat.setCategoryId(1);
+
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(cat));
         when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
         var response = taskService.createTask(task);
 
@@ -60,12 +63,20 @@ class TaskServiceTest {
 
     @Test
     void editTask() {
-        when(taskRepository.existsById(1)).thenReturn(true);
-        when(categoryRepository.existsById(1)).thenReturn(true);
+        Task oldTask = new Task("Old", "Old description");
+        oldTask.setTaskId(1);
+
         Task task = new Task("Updated", "Updated description");
         task.setTaskId(1);
+
+        TaskCategory cat = new TaskCategory("test");
+        cat.setCategoryId(1);
+
+        when(taskRepository.findById(1)).thenReturn(Optional.of(task));
         when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
-        var response = taskService.editTask(1, task);
+        when(categoryRepository.existsById(1)).thenReturn(true);
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(cat));
+        var response = taskService.editTask(1, oldTask);
 
         Assertions.assertEquals("Updated", response.getTaskName(),
                 "Name was not created correctly");

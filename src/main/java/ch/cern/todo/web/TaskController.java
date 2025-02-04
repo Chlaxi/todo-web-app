@@ -37,12 +37,12 @@ public class TaskController {
     }
 
     @PostMapping("")
-    public Task createTask(@RequestBody @Valid Task task){
+    public TaskDTO createTask(@RequestBody @Valid Task task){
         return taskService.createTask(task);
     }
 
     @PutMapping("{id}/update")
-    public Task editTask(@PathVariable int id, @RequestBody @Valid Task task){
+    public TaskDTO editTask(@PathVariable int id, @RequestBody @Valid Task task){
         var t = taskService.editTask(id, task);
         if(t == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
