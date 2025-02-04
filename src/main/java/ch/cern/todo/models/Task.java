@@ -20,6 +20,19 @@ public class Task implements Serializable {
     @Transient
     private TaskCategory category;
 
+    public Task() {
+        this.categoryId = 1;
+    }
+    public Task(String taskName) {
+        this.taskName = taskName;
+        this.categoryId = 1;
+    }
+    public Task(String taskName, String taskDescription) {
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.categoryId = 1;
+    }
+
     public int getTaskId() {
         return taskId;
     }

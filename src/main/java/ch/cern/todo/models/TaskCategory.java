@@ -16,6 +16,16 @@ public class TaskCategory implements Serializable {
     private String categoryName;
     private String categoryDescription;
 
+    public TaskCategory(){}
+
+    public TaskCategory(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public TaskCategory(String categoryName, String categoryDescription) {
+        this.categoryName = categoryName;
+        this.categoryDescription = categoryDescription;
+    }
 
     public int getCategoryId() {
         return categoryId;
