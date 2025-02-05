@@ -8,6 +8,7 @@ public class TaskDTO {
     private String taskDescription;
     private Timestamp deadline;
     private TaskCategory category;
+    private UserEntity owner;
 
     public int getTaskId() {
         return taskId;
@@ -47,5 +48,13 @@ public class TaskDTO {
 
     public void setCategory(TaskCategory category) {
         this.category = category;
+    }
+
+    public UserEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserEntity owner) {
+        this.owner = owner;
     }
 }

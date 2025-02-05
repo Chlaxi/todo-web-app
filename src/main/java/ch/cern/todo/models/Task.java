@@ -21,6 +21,7 @@ public class Task implements Serializable {
     private Timestamp deadline;
     @NotNull
     private int categoryId;
+    private int ownerId;
 
     public Task() {
 
@@ -75,5 +76,13 @@ public class Task implements Serializable {
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public int getOwner() {
+        return ownerId;
+    }
+
+    public void setOwner(UserEntity owner) {
+        this.ownerId = owner.getId();
     }
 }

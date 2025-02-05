@@ -3,6 +3,8 @@ package ch.cern.todo.services;
 import ch.cern.todo.models.*;
 import ch.cern.todo.repository.TaskCategoryRepository;
 import ch.cern.todo.repository.TaskRepository;
+import ch.cern.todo.repository.UserRepository;
+import ch.cern.todo.security.SecurityUtil;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,12 @@ import static org.springframework.data.domain.ExampleMatcher.matching;
 @Service
 public class TaskService {
 
+    private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final TaskCategoryRepository categoryRepository;
 
-    public TaskService(TaskRepository taskRepository, TaskCategoryRepository categoryRepository) {
+    public TaskService(UserRepository userRepository, TaskRepository taskRepository, TaskCategoryRepository categoryRepository) {
+        this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.categoryRepository = categoryRepository;
     }
@@ -99,10 +103,17 @@ public class TaskService {
     }
 
     public TaskDTO createTask(Task task){
+        String username = SecurityUtil.getSessionUser();
+        UserEntity user = userRepository.findFirstByUsername(username);
+        task.setOwner(user);
         return TaskDTOFromTask(save(task));
     }
 
     public TaskDTO editTask(int id, Task newTask){
+        String username = SecurityUtil.getSessionUser();
+        UserEntity user = userRepository.findFirstByUsername(username);
+        newTask.setOwner(user);
+
         Task task = taskRepository.findById(id).orElse(null);
         if(task == null)
             return null;
@@ -150,6 +161,7 @@ public class TaskService {
             setTaskDescription(dto.getTaskDescription());
             setDeadline(dto.getDeadline());
             setCategoryId(dto.getCategory().getCategoryId());
+            setOwner(dto.getOwner());
         }};
     }
 }
