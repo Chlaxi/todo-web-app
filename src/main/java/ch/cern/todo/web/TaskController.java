@@ -2,6 +2,7 @@ package ch.cern.todo.web;
 
 import ch.cern.todo.models.Task;
 import ch.cern.todo.models.TaskDTO;
+import ch.cern.todo.models.TaskPagination;
 import ch.cern.todo.services.TaskCategoryService;
 import ch.cern.todo.services.TaskService;
 import jakarta.validation.Valid;
@@ -23,8 +24,10 @@ public class TaskController {
     }
 
     @GetMapping("")
-    public Iterable<TaskDTO> getTasks(){
-        return taskService.getTasks();
+    public TaskPagination getTasks(
+            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        return taskService.getTasks(pageNumber, pageSize);
     }
 
     @GetMapping("{id}")

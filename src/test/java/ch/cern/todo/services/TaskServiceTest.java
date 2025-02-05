@@ -2,6 +2,7 @@ package ch.cern.todo.services;
 
 import ch.cern.todo.models.Task;
 import ch.cern.todo.models.TaskCategory;
+import ch.cern.todo.models.TaskPagination;
 import ch.cern.todo.repository.TaskCategoryRepository;
 import ch.cern.todo.repository.TaskRepository;
 import org.junit.jupiter.api.Assertions;
@@ -11,7 +12,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -28,7 +35,22 @@ class TaskServiceTest {
 
     @Test
     void getTasks() {
+        List<Task> taskList = new ArrayList<>();
 
+        for (int i = 1; i < 20; i++) {
+            Task task = new Task("Test"+i);
+            task.setTaskId(i);
+            taskList.add(task);
+        }
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Task> page = new PageImpl<>(taskList,pageable,0);
+        when(taskRepository.findAll(pageable)).thenReturn(page);
+
+        TaskPagination response = taskService.getTasks(0,10);
+
+        Assertions.assertNotNull(response.getData());
+        Assertions.assertEquals(2, response.getTotalPages());
+        Assertions.assertEquals(19, response.getTotalElements());
     }
 
     @Test
