@@ -2,6 +2,7 @@ package ch.cern.todo.web;
 
 import ch.cern.todo.models.Task;
 import ch.cern.todo.models.TaskDTO;
+import ch.cern.todo.models.TaskFilter;
 import ch.cern.todo.models.TaskPagination;
 import ch.cern.todo.services.TaskCategoryService;
 import ch.cern.todo.services.TaskService;
@@ -24,10 +25,19 @@ public class TaskController {
     }
 
     @GetMapping("")
-    public TaskPagination getTasks(
+    public TaskPagination getTasks(@RequestBody(required = false) Task task,
             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
-        return taskService.getTasks(pageNumber, pageSize);
+
+            return taskService.getTasks(pageNumber, pageSize);
+    }
+
+    @PostMapping("/Search")
+    public TaskPagination findTasksByExample(@RequestBody(required = false) TaskFilter task,
+                                   @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+                                   @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+
+            return taskService.findTasksByExample(task, pageNumber, pageSize);
     }
 
     @GetMapping("{id}")

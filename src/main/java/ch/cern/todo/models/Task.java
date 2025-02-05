@@ -23,8 +23,7 @@ public class Task implements Serializable {
     private int categoryId;
 
     public Task() {
-        this.categoryId = 1;
-        deadline = new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND));
+
     }
     public Task(String taskName) {
         this.taskName = taskName;

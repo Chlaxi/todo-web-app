@@ -1,17 +1,15 @@
 package ch.cern.todo.services;
 
-import ch.cern.todo.models.Task;
-import ch.cern.todo.models.TaskCategory;
-import ch.cern.todo.models.TaskDTO;
-import ch.cern.todo.models.TaskPagination;
+import ch.cern.todo.models.*;
 import ch.cern.todo.repository.TaskCategoryRepository;
 import ch.cern.todo.repository.TaskRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
+
+import static org.springframework.data.domain.ExampleMatcher.matching;
 
 @Service
 public class TaskService {
@@ -24,19 +22,75 @@ public class TaskService {
         this.categoryRepository = categoryRepository;
     }
 
+    public TaskPagination findTasksByExample(TaskFilter filter, int pageNumber, int pageSize){
+
+        Task task = new Task();
+            task.setTaskName(filter.getTaskName());
+            task.setTaskDescription(filter.getTaskDescription());
+            task.setCategoryId(filter.getCategoryId());
+
+        ExampleMatcher matcher;
+        if (task.getCategoryId() == 0) {
+            matcher = matching()
+                    .withIgnoreCase()
+                    .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+                    .withIgnoreNullValues()
+                    .withIgnorePaths("taskId","categoryId");
+        } else {
+            matcher = matching()
+                    .withIgnoreCase()
+                    .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+                    .withIgnoreNullValues()
+                    .withIgnorePaths("taskId");
+        }
+
+        Example<Task> example = Example.of(task, matcher);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<Task> tasks = taskRepository.findAll(example, pageable);
+
+
+        List<TaskDTO> data;
+        if(filter.getDeadlineFrom() != null && filter.getDeadlineTo() != null){
+            data = tasks.stream()
+                    .filter(t -> t.getDeadline().after(filter.getDeadlineFrom())
+                            && t.getDeadline().before(filter.getDeadlineTo()))
+                    .map(this::TaskDTOFromTask).toList();
+        } else if(filter.getDeadlineFrom() != null && filter.getDeadlineTo() == null)
+        {
+            data = tasks.stream()
+                    .filter(t -> t.getDeadline().after(filter.getDeadlineFrom()))
+                    .map(this::TaskDTOFromTask).toList();
+        } else if(filter.getDeadlineFrom() == null && filter.getDeadlineTo() != null) {
+            data = tasks.stream()
+                    .filter(t -> t.getDeadline().before(filter.getDeadlineTo()))
+                    .map(this::TaskDTOFromTask).toList();
+        }
+        else {
+            data = tasks.stream().map(this::TaskDTOFromTask).toList();
+        }
+        Page<TaskDTO> finalPage = new PageImpl<>(data, pageable, data.size());
+
+        return new TaskPagination(
+                data,
+                pageNumber,
+                pageSize,
+                finalPage.getTotalElements(),
+                finalPage.getTotalPages());
+    }
+
     public TaskPagination getTasks(int pageNumber, int pageSize){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Task> tasks = taskRepository.findAll(pageable);
         List<TaskDTO> data = tasks.getContent().stream().map(this::TaskDTOFromTask).toList();
 
-        TaskPagination page = new TaskPagination(
+        return new TaskPagination(
                 data,
                 pageNumber,
                 pageSize,
                 tasks.getTotalElements(),
                 tasks.getTotalPages());
-
-        return page;
     }
 
     public TaskDTO getTaskById(int id) {
