@@ -22,3 +22,7 @@ create table if not exists tasks (
     FOREIGN KEY (category_id) REFERENCES task_categories(category_id),
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
+
+INSERT INTO task_categories (category_name)
+SELECT 'Default'
+WHERE NOT EXISTS (SELECT * FROM TASK_CATEGORIES);

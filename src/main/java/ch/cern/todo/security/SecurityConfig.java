@@ -48,7 +48,10 @@ public class SecurityConfig {
                                     antMatcher("/h2-console/**"),
                                     antMatcher("/login/**"))
                             .permitAll()
-                            .requestMatchers(antMatcher("/admin/**"),
+                            .requestMatchers(
+                                    /* Commenting this out to allow for creation of admins,
+                                     * as admins would otherwise not be available */
+                                    //antMatcher("/admin/**"),
                                     antMatcher(HttpMethod.POST, "/categories"),
                                     antMatcher(HttpMethod.DELETE, "/categories/"),
                                     antMatcher(HttpMethod.PUT, "/categories/"),
