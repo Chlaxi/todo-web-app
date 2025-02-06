@@ -118,7 +118,7 @@ public class TaskService {
         return TaskToDto(newTask);
     }
 
-    public TaskDTO editTask(int id, TaskSaveDTO newTask){
+    public TaskDTO editTask(int id, TaskDTO newTask){
         Task task = taskRepository.findById(id).orElse(null);
         if(task == null)
             return null;
@@ -128,7 +128,7 @@ public class TaskService {
         if(user.getId() != task.getOwner().getId())
             return null;
 
-        TaskCategory category = categoryRepository.findById(newTask.getCategoryId()).orElse(null);
+        TaskCategory category = categoryRepository.findById(newTask.getCategory().getCategoryId()).orElse(null);
         if(category == null)
             throw new IndexOutOfBoundsException();
 
@@ -139,10 +139,9 @@ public class TaskService {
         task.setCategory(category);
         task.setOwner(user);
 
-        task.setOwner(user);
         Task updatedTask = taskRepository.save(task);
 
-        return TaskToDto(updatedTask);
+        return TaskToDto(updatedTask, user);
     }
 
     public boolean deleteTask(int id){

@@ -60,9 +60,9 @@ public class SecurityConfig {
             .roles("admin").build();
 
         UserDetails user = User.builder()
-                .username("user")
-                .password("user")
-                .roles("user").build();
+            .username("user")
+            .password("user")
+            .roles("user").build();
 
         return new InMemoryUserDetailsManager(admin,user);
 

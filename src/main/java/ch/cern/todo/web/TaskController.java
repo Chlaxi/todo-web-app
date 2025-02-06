@@ -52,7 +52,7 @@ public class TaskController {
     }
 
     @PutMapping("{id}/update")
-    public TaskDTO editTask(@PathVariable int id, @RequestBody @Valid TaskSaveDTO task){
+    public TaskDTO editTask(@PathVariable int id, @RequestBody @Valid TaskDTO task){
         var t = taskService.editTask(id, task);
         if(t == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
