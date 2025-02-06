@@ -122,7 +122,7 @@ public class TaskService {
 
     public TaskDTO createTask(TaskDTO task){
         if(!categoryRepository.existsById(task.getCategory().getCategoryId()))
-            throw new IndexOutOfBoundsException();
+            return null;
 
         String username = SecurityUtil.getSessionUser();
         UserEntity user = userRepository.findFirstByUsername(username).orElseThrow(() -> new UsernameNotFoundException("invalid username or password"));
