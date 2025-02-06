@@ -1,9 +1,6 @@
 package ch.cern.todo.web;
 
-import ch.cern.todo.models.Task;
-import ch.cern.todo.models.TaskDTO;
-import ch.cern.todo.models.TaskFilter;
-import ch.cern.todo.models.TaskPagination;
+import ch.cern.todo.models.*;
 import ch.cern.todo.services.TaskCategoryService;
 import ch.cern.todo.services.TaskService;
 import jakarta.validation.Valid;
@@ -50,12 +47,12 @@ public class TaskController {
     }
 
     @PostMapping("")
-    public TaskDTO createTask(@RequestBody @Valid Task task){
+    public TaskDTO createTask(@RequestBody @Valid TaskDTO task){
         return taskService.createTask(task);
     }
 
     @PutMapping("{id}/update")
-    public TaskDTO editTask(@PathVariable int id, @RequestBody @Valid Task task){
+    public TaskDTO editTask(@PathVariable int id, @RequestBody @Valid TaskSaveDTO task){
         var t = taskService.editTask(id, task);
         if(t == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);

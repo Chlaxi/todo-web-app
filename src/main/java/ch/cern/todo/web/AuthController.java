@@ -25,19 +25,19 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("users/create")
+    @PostMapping("login/create")
     public UserEntity registerUser(@RequestBody @Valid UserEntity user){
         if(userService.findByUsername(user.getUsername()) != null)
-            throw new ResponseStatusException(HttpStatus.IM_USED);
+            throw new ResponseStatusException(HttpStatus.FOUND);
 
         user.setRoles(UserEntity.UserRoles.user.name());
         return userService.createUser(user);
     }
 
-    @PostMapping("users/create/admin")
+    @PostMapping("admin/create")
     public UserEntity registerAdmin(@RequestBody @Valid UserEntity user){
         if(userService.findByUsername(user.getUsername()) != null)
-            throw new ResponseStatusException(HttpStatus.IM_USED);
+            throw new ResponseStatusException(HttpStatus.FOUND);
 
         user.setRoles(UserEntity.UserRoles.admin.name());
         return userService.createUser(user);

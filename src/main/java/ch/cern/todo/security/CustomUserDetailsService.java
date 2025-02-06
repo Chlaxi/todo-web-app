@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+/*
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -29,8 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         {
             return new User(
                     user.getUsername(),
-                    "",
-                    //SecurityConfig.passwordEncoder().encode(user.getPassword()),
+                    SecurityConfig.passwordEncoder().encode(user.getPassword()),
                     List.of(new SimpleGrantedAuthority(user.getRoles()))
             );
         } else {
@@ -38,3 +37,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 }
+
+ */

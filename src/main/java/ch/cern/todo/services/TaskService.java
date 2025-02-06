@@ -8,8 +8,8 @@ import ch.cern.todo.security.SecurityUtil;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.domain.ExampleMatcher.matching;
 
@@ -31,10 +31,10 @@ public class TaskService {
         Task task = new Task();
             task.setTaskName(filter.getTaskName());
             task.setTaskDescription(filter.getTaskDescription());
-            task.setCategoryId(filter.getCategoryId());
+            task.setCategory(categoryRepository.findById(filter.getCategoryId()).orElse(null));
 
         ExampleMatcher matcher;
-        if (task.getCategoryId() == 0) {
+        if (task.getCategory() == null) {
             matcher = matching()
                     .withIgnoreCase()
                     .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
@@ -60,19 +60,19 @@ public class TaskService {
             data = tasks.stream()
                     .filter(t -> t.getDeadline().after(filter.getDeadlineFrom())
                             && t.getDeadline().before(filter.getDeadlineTo()))
-                    .map(this::TaskDTOFromTask).toList();
+                    .map(this::TaskToDto).toList();
         } else if(filter.getDeadlineFrom() != null && filter.getDeadlineTo() == null)
         {
             data = tasks.stream()
                     .filter(t -> t.getDeadline().after(filter.getDeadlineFrom()))
-                    .map(this::TaskDTOFromTask).toList();
+                    .map(this::TaskToDto).toList();
         } else if(filter.getDeadlineFrom() == null && filter.getDeadlineTo() != null) {
             data = tasks.stream()
                     .filter(t -> t.getDeadline().before(filter.getDeadlineTo()))
-                    .map(this::TaskDTOFromTask).toList();
+                    .map(this::TaskToDto).toList();
         }
         else {
-            data = tasks.stream().map(this::TaskDTOFromTask).toList();
+            data = tasks.stream().map(this::TaskToDto).toList();
         }
         Page<TaskDTO> finalPage = new PageImpl<>(data, pageable, data.size());
 
@@ -87,7 +87,9 @@ public class TaskService {
     public TaskPagination getTasks(int pageNumber, int pageSize){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Task> tasks = taskRepository.findAll(pageable);
-        List<TaskDTO> data = tasks.getContent().stream().map(this::TaskDTOFromTask).toList();
+        List<TaskDTO> data = tasks.getContent().stream()
+                .map(this::TaskToDto)
+                .toList();
 
         return new TaskPagination(
                 data,
@@ -99,27 +101,48 @@ public class TaskService {
 
     public TaskDTO getTaskById(int id) {
         Task task =  taskRepository.findById(id).orElse(null);
-        return TaskDTOFromTask(task);
+        return TaskToDto(task);
     }
 
-    public TaskDTO createTask(Task task){
+    public TaskDTO createTask(TaskDTO task){
+        if(!categoryRepository.existsById(task.getCategory().getCategoryId()))
+            throw new IndexOutOfBoundsException();
+
         String username = SecurityUtil.getSessionUser();
         UserEntity user = userRepository.findFirstByUsername(username);
-        task.setOwner(user);
-        return TaskDTOFromTask(save(task));
+        task.setOwner(new UserDto(user));
+
+        Task t = DTOtoTask(task, user);
+
+        Task newTask = taskRepository.save(t);
+        return TaskToDto(newTask);
     }
 
-    public TaskDTO editTask(int id, Task newTask){
-        String username = SecurityUtil.getSessionUser();
-        UserEntity user = userRepository.findFirstByUsername(username);
-        newTask.setOwner(user);
-
+    public TaskDTO editTask(int id, TaskSaveDTO newTask){
         Task task = taskRepository.findById(id).orElse(null);
         if(task == null)
             return null;
 
-        Task updatedTask = save(newTask);
-        return TaskDTOFromTask(updatedTask);
+        String username = SecurityUtil.getSessionUser();
+        UserEntity user = userRepository.findFirstByUsername(username);
+        if(user.getId() != task.getOwner().getId())
+            return null;
+
+        TaskCategory category = categoryRepository.findById(newTask.getCategoryId()).orElse(null);
+        if(category == null)
+            throw new IndexOutOfBoundsException();
+
+        task.setTaskId(newTask.getTaskId());
+        task.setTaskName(newTask.getTaskName());
+        task.setTaskDescription(newTask.getTaskDescription());
+        task.setDeadline(newTask.getDeadline());
+        task.setCategory(category);
+        task.setOwner(user);
+
+        task.setOwner(user);
+        Task updatedTask = taskRepository.save(task);
+
+        return TaskToDto(updatedTask);
     }
 
     public boolean deleteTask(int id){
@@ -130,38 +153,37 @@ public class TaskService {
         return true;
     }
 
-    private Task save(Task task){
-        if(!categoryRepository.existsById(task.getCategoryId()))
-            task.setCategoryId(1);
-
-        return taskRepository.save(task);
+    private TaskDTO TaskToDto(Task task){
+        UserEntity user =  Optional.of(userRepository.findById(task.getOwner().getId()).orElseThrow()).get();
+        return TaskToDto(task, user);
     }
 
-    private TaskDTO TaskDTOFromTask(Task task){
+    private TaskDTO TaskToDto(Task task, UserEntity user){
         if(task == null)
             return null;
 
-        TaskCategory category = categoryRepository.findById(task.getCategoryId()).orElse(null);
-        if(category == null)
+        if(!categoryRepository.existsById(task.getCategory().getCategoryId()))
             return null;
 
-        return new TaskDTO() {{
-            setTaskId(task.getTaskId());
-            setTaskName(task.getTaskName());
-            setTaskDescription(task.getTaskDescription());
-            setDeadline(task.getDeadline());
-            setCategory(category);
-        }};
+        return TaskDTO.builder()
+                .taskId(task.getTaskId())
+                .taskName(task.getTaskName())
+                .taskDescription(task.getTaskDescription())
+                .deadline(task.getDeadline())
+                .category(task.getCategory())
+                .owner(new UserDto(user))
+                .build();
     }
 
-    private Task DTOtoTask(TaskDTO dto){
-        return new Task() {{
-            setTaskId(dto.getTaskId());
-            setTaskName(dto.getTaskName());
-            setTaskDescription(dto.getTaskDescription());
-            setDeadline(dto.getDeadline());
-            setCategoryId(dto.getCategory().getCategoryId());
-            setOwner(dto.getOwner());
-        }};
+    private Task DTOtoTask(TaskDTO dto, UserEntity user){
+        Task task = new Task();
+            task.setTaskId(dto.getTaskId());
+            task.setTaskName(dto.getTaskName());
+            task.setTaskDescription(dto.getTaskDescription());
+            task.setDeadline(dto.getDeadline());
+            task.setCategory(dto.getCategory());
+            task.setOwner(user);
+
+        return task;
     }
 }

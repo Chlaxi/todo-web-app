@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TASK_CATEGORIES")
@@ -15,6 +17,9 @@ public class TaskCategory implements Serializable {
     @NotEmpty
     private String categoryName;
     private String categoryDescription;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Task> tasks = new ArrayList<>();
 
     public TaskCategory(){}
 

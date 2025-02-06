@@ -3,45 +3,31 @@ package ch.cern.todo.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Builder
+@Data
 @Entity
 @Table(name = "USERS")
 public class UserEntity {
-    public static enum UserRoles {user,admin}
+
+    public enum UserRoles {user,admin}
+
+    public UserEntity() {}
+
+    public UserEntity(int id, String username, String password, String roles) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotEmpty
     private String username;
+    @NotEmpty
+    private String password;
     private String roles;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
 }

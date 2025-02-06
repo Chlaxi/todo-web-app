@@ -19,9 +19,12 @@ public class Task implements Serializable {
     private String taskDescription;
     @NotNull
     private Timestamp deadline;
-    @NotNull
-    private int categoryId;
-    private int ownerId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private TaskCategory category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private UserEntity owner;
 
     public Task() {
 
@@ -29,13 +32,11 @@ public class Task implements Serializable {
     public Task(String taskName) {
         this.taskName = taskName;
         deadline = new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND));
-        this.categoryId = 1;
     }
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         deadline = new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND));
-        this.categoryId = 1;
     }
 
     public int getTaskId() {
@@ -70,19 +71,20 @@ public class Task implements Serializable {
         this.deadline = deadline;
     }
 
-    public int getCategoryId() {
-        return categoryId;
+    public TaskCategory getCategory() {
+        return category;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(TaskCategory category) {
+        this.category = category;
     }
 
-    public int getOwner() {
-        return ownerId;
+    public UserEntity getOwner() {
+        return owner;
     }
 
     public void setOwner(UserEntity owner) {
-        this.ownerId = owner.getId();
+        this.owner = owner;
     }
+
 }

@@ -7,6 +7,7 @@ create table if not exists task_categories (
 create table if not exists users (
     id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     username VARCHAR2(100) NOT NULL UNIQUE,
+    password VARCHAR2(500) NOT NULL,
     roles VARCHAR2(100) NOT NULL
 );
 
@@ -17,5 +18,7 @@ create table if not exists tasks (
     task_description VARCHAR2(500),
     deadline timestamp NOT NULL,
     category_id INTEGER DEFAULT 1,
-    FOREIGN KEY (category_id) REFERENCES task_categories(category_id)
+    owner_id INTEGER NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES task_categories(category_id),
+    FOREIGN KEY (owner_id) REFERENCES users(id)
 );

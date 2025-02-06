@@ -3,7 +3,6 @@ package ch.cern.todo.services;
 import ch.cern.todo.models.TaskCategory;
 import ch.cern.todo.repository.TaskCategoryRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TaskCategoryService {
