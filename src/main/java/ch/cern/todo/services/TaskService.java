@@ -29,10 +29,25 @@ public class TaskService {
 
     public TaskPagination findTasksByExample(TaskFilter filter, int pageNumber, int pageSize){
 
+        String username = SecurityUtil.getSessionUser();
+        UserEntity user = userRepository.findFirstByUsername(username).orElseThrow(() -> new UsernameNotFoundException("invalid username"));
+
         Task task = new Task();
             task.setTaskName(filter.getTaskName());
             task.setTaskDescription(filter.getTaskDescription());
             task.setCategory(categoryRepository.findById(filter.getCategoryId()).orElse(null));
+
+        if (filter.getOwner() == null) {
+            task.setOwner(user);
+        } else {
+            if(!user.getRoles().equals(UserEntity.UserRoles.ADMIN.name()) &&
+                user.getId() != filter.getOwner().getId()){
+                return null; //User is not authorised to view the tasks
+            }
+            UserEntity filterUser = new UserEntity();
+            filterUser.setId(filter.getOwner().getId());
+            task.setOwner(filterUser);
+        }
 
         ExampleMatcher matcher;
         if (task.getCategory() == null) {
@@ -62,12 +77,12 @@ public class TaskService {
                     .filter(t -> t.getDeadline().after(filter.getDeadlineFrom())
                             && t.getDeadline().before(filter.getDeadlineTo()))
                     .map(this::TaskToDto).toList();
-        } else if(filter.getDeadlineFrom() != null && filter.getDeadlineTo() == null)
+        } else if(filter.getDeadlineFrom() != null)
         {
             data = tasks.stream()
                     .filter(t -> t.getDeadline().after(filter.getDeadlineFrom()))
                     .map(this::TaskToDto).toList();
-        } else if(filter.getDeadlineFrom() == null && filter.getDeadlineTo() != null) {
+        } else if(filter.getDeadlineTo() != null) {
             data = tasks.stream()
                     .filter(t -> t.getDeadline().before(filter.getDeadlineTo()))
                     .map(this::TaskToDto).toList();
@@ -85,7 +100,7 @@ public class TaskService {
                 finalPage.getTotalPages());
     }
 
-    public TaskPagination getTasks(int pageNumber, int pageSize){
+    public TaskPagination getAllTasks(int pageNumber, int pageSize){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Task> tasks = taskRepository.findAll(pageable);
         List<TaskDTO> data = tasks.getContent().stream()

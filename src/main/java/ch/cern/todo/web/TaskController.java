@@ -21,12 +21,12 @@ public class TaskController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("")
+    @GetMapping("/all")
     public TaskPagination getTasks(@RequestBody(required = false) Task task,
             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
 
-            return taskService.getTasks(pageNumber, pageSize);
+            return taskService.getAllTasks(pageNumber, pageSize);
     }
 
     @PostMapping("/Search")

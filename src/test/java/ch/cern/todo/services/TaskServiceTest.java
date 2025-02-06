@@ -6,7 +6,6 @@ import ch.cern.todo.repository.TaskRepository;
 import ch.cern.todo.repository.UserRepository;
 import ch.cern.todo.security.SecurityConfig;
 
-import ch.cern.todo.security.SecurityUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.sql.Timestamp;
@@ -81,12 +79,12 @@ class TaskServiceTest {
     }
 
     @Test
-    void getTasks() {
+    void getAllTasks() {
         Page<Task> page = new PageImpl<>(List.of(task));
         when(taskRepository.findAll(Mockito.any(Pageable.class))).thenReturn(page);
         when(userRepository.findById(user.getId())).thenReturn(Optional.ofNullable(user));
         when(categoryRepository.existsById(category.getCategoryId())).thenReturn(true);
-        TaskPagination response = taskService.getTasks(0,10);
+        TaskPagination response = taskService.getAllTasks(0,10);
 
         Assertions.assertNotNull(response);
     }

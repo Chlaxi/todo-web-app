@@ -11,8 +11,6 @@ import java.sql.Timestamp;
 @Builder
 public class TaskDTO {
 
-
-
     private int taskId;
     private String taskName;
     private String taskDescription;

@@ -51,7 +51,9 @@ public class SecurityConfig {
                             .requestMatchers(antMatcher("/admin/**"),
                                     antMatcher(HttpMethod.POST, "/categories"),
                                     antMatcher(HttpMethod.DELETE, "/categories/"),
-                                    antMatcher(HttpMethod.PUT, "/categories/")).hasAuthority("ADMIN")
+                                    antMatcher(HttpMethod.PUT, "/categories/"),
+                                    antMatcher("/tasks/all"))
+                            .hasAuthority("ADMIN")
                         .anyRequest().authenticated();
   //                          .requestMatchers(antMatcher(HttpMethod.POST),
     //                                antMatcher(HttpMethod.GET))

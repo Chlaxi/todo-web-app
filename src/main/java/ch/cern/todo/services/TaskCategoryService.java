@@ -24,6 +24,9 @@ public class TaskCategoryService {
     }
 
     public TaskCategory createCategory(TaskCategory category){
+        if(categoryRepository.existsByCategoryName(category.getCategoryName()))
+            return null;
+
         categoryRepository.save(category);
         return category;
     }
