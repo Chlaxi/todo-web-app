@@ -11,7 +11,7 @@ import lombok.*;
 @Table(name = "USERS")
 public class UserEntity {
 
-    public enum UserRoles {user,admin}
+    public enum UserRoles {USER,ADMIN}
 
     public UserEntity() {}
 

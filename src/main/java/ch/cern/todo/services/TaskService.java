@@ -6,6 +6,7 @@ import ch.cern.todo.repository.TaskRepository;
 import ch.cern.todo.repository.UserRepository;
 import ch.cern.todo.security.SecurityUtil;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -109,7 +110,7 @@ public class TaskService {
             throw new IndexOutOfBoundsException();
 
         String username = SecurityUtil.getSessionUser();
-        UserEntity user = userRepository.findFirstByUsername(username);
+        UserEntity user = userRepository.findFirstByUsername(username).orElseThrow(() -> new UsernameNotFoundException("invalid username or password"));
         task.setOwner(new UserDto(user));
 
         Task t = DTOtoTask(task, user);
@@ -124,7 +125,7 @@ public class TaskService {
             return null;
 
         String username = SecurityUtil.getSessionUser();
-        UserEntity user = userRepository.findFirstByUsername(username);
+        UserEntity user = userRepository.findFirstByUsername(username).orElseThrow(() -> new UsernameNotFoundException("invalid username or password"));
         if(user.getId() != task.getOwner().getId())
             return null;
 

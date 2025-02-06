@@ -60,7 +60,7 @@ class TaskServiceTest {
                 .id(1)
                 .username("admin")
                 .password("admin")
-                .roles(UserEntity.UserRoles.admin.name()).build();
+                .roles(UserEntity.UserRoles.ADMIN.name()).build();
 
         taskDto = TaskDTO.builder()
                 .taskId(1)
@@ -112,7 +112,7 @@ class TaskServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(user.getUsername());
         SecurityContextHolder.setContext(securityContext);
-        when(userRepository.findFirstByUsername(user.getUsername())).thenReturn(user);
+        when(userRepository.findFirstByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
         var response = taskService.createTask(taskDto);
 
@@ -143,7 +143,7 @@ class TaskServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(user.getUsername());
         SecurityContextHolder.setContext(securityContext);
-        when(userRepository.findFirstByUsername(user.getUsername())).thenReturn(user);
+        when(userRepository.findFirstByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
         when(categoryRepository.findById(category.getCategoryId())).thenReturn(Optional.of(category));
         when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
